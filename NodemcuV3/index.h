@@ -1,0 +1,174 @@
+const char* MAIN_page PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    .devices {
+      width: 500px;
+      display: flex;
+    }
+
+    .fan-control {
+      width: 300px;
+    }
+
+    .light-control {
+      width: 300px;
+    }
+  </style>
+  <script>
+    var fanAuto = true;
+    var lightAuto = true;
+
+    function fanSwitchControl() {
+      var element = document.getElementById("fan-control-switch");
+      if (element.value == "Change to automatic") {
+        element.value = "Change to manual";
+        document.getElementById("fan-on").disabled = true;
+        document.getElementById("fan-off").disabled = true;
+        document.getElementById("temperature-level").disabled = false;
+      }
+      else {
+        element.value = "Change to automatic";
+        document.getElementById("fan-on").disabled = false;
+        document.getElementById("fan-off").disabled = false;
+        document.getElementById("temperature-level").disabled = true;
+      }
+    }
+
+    function lightSwitchControl() {
+      var element = document.getElementById("light-control-switch");
+      if (element.value == "Change to automatic") {
+        element.value = "Change to manual";
+        document.getElementById("light-on").disabled = true;
+        document.getElementById("light-off").disabled = true;
+        document.getElementById("light-level").disabled = false;
+      }
+      else {
+        element.value = "Change to automatic";
+        document.getElementById("light-on").disabled = false;
+        document.getElementById("light-off").disabled = false;
+        document.getElementById("light-level").disabled = true;
+      }
+    }
+
+    function sendFanControl() {
+      var sts;
+      if (fanAuto) {
+        fanAuto = false;
+        sts = 1;
+      }
+      else {
+        fanAuto = true;
+        sts = 0
+      }
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          fanSwitchControl();
+        }
+      };
+      xhttp.open("GET", "changeControlTypeFan?state=" + sts, true);
+      xhttp.send();
+    }
+
+    function sendLightControl() {
+      var lvl = document.getElementById("light-level").value;
+      var sts;
+      if (lightAuto) {
+        lightAuto = false;
+        sts = 1;
+      }
+      else {
+        lightAuto = true;
+        sts = 0
+      }
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          lightSwitchControl();
+        }
+      };
+      xhttp.open("GET", "changeControlTypeLight?state=" + sts, true);
+      xhttp.send();
+    }
+
+    function sendOn(functionName) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) { }
+      };
+      xhttp.open("GET", functionName, true);
+      xhttp.send();
+    }
+
+    function sendOff(functionName) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) { }
+      };
+      xhttp.open("GET", functionName, true);
+      xhttp.send();
+    }
+
+    function updateLightValue() {
+      var lightValue = document.getElementById("light-level").value
+      document.getElementById("light-span").innerText = lightValue.toString() + ' lx';
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) { }
+      };
+      xhttp.open("GET", "lightSlider?level=" + lightValue, true);
+      xhttp.send();
+    }
+
+    function updateTemperatureValue() {
+      var tempValue = document.getElementById("temperature-level").value
+      document.getElementById("temperature-span").innerText = tempValue.toString() + '\u00B0C';
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) { }
+      };
+      xhttp.open("GET", "temperatureSlider?level=" + tempValue, true);
+      xhttp.send();
+    }
+
+    window.onload = function () {
+      updateLightValue();
+      updateTemperatureValue();
+    };
+  </script>
+</head>
+
+<body>
+  <center>
+    <div class="devices">
+      <div class="fan-control">
+        <h3>Fan control</h3><br>
+        <input type="button" onclick="sendFanControl()" id="fan-control-switch" value="Change to manual" /><br>
+        <span>Max temperature value: </span><span id="temperature-span"></span>
+        <input type="range" id="temperature-level" name="temperature-level" min="1" max="30" value="25"
+          oninput="updateTemperatureValue()">
+        <br>
+        <input type="button" onclick="sendOn('fanOn')" id="fan-on" value="FAN ON" disabled /><br>
+        <input type="button" onclick="sendOff('fanOff')" id="fan-off" value="FAN OFF" disabled />
+      </div>
+      <div class="light-control">
+        <h3>Light control</h3><br>
+        <input type="button" onclick="sendLightControl()" id="light-control-switch" value="Change to manual" /><br>
+        <span>Min light value: </span><span id="light-span"></span>
+        <input type="range" id="light-level" name="light-level" min="1" max="1000" value="300"
+          oninput="updateLightValue()">
+        <br>
+        <input type="button" onclick="sendOn('lightOn')" id="light-on" value="LIGHT ON" disabled /><br>
+        <input type="button" onclick="sendOff('lightOff')" id="light-off" value="LIGHT OFF" disabled />
+      </div>
+    </div>
+    <hr>
+  </center>
+
+</body>
+
+</html>
+)=====";
