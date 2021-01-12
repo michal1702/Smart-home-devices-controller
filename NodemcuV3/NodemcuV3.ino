@@ -23,7 +23,7 @@
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST); //define lcd
 
-ESP8266WebServer server(80);  //init web server
+ESP8266WebServer server(255);  //init web server
 
 //wifi and access point credentials
 const char* ssid = "Livebox-AF2D";
@@ -88,11 +88,19 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(button, INPUT_PULLUP);
 
+  //configure static ip
+  IPAddress ip = ipaddr_addr("192.168.1.200");
+  IPAddress gateway = ipaddr_addr("192.168.1.1");
+  IPAddress subnet = ipaddr_addr("255.255.255.000");
+  IPAddress dns1 = ipaddr_addr( "8.8.8.8" );
+  IPAddress dns2 = ipaddr_addr( "8.8.4.4" );
+
   // initialize a ST7735S lcd screen
   tft.initR(INITR_BLACKTAB);
   Serial.begin(115200);
   //make NodeMCU a soft access-point
   WiFi.softAP(ap_ssid);
+  WiFi.config(ip, gateway, subnet, dns1, dns2);
   //connecting to wifi
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
@@ -348,14 +356,14 @@ void handleRoot() {
 
 void handleFanOn() {
   fanData.isOn = true;
-  tone(buzzer, 2000);
+  tone(buzzer, 1000);
   delay(50);
   noTone(buzzer);
 }
 
 void handleFanOff() {
   fanData.isOn = false;
-  tone(buzzer, 2000);
+  tone(buzzer, 1000);
   delay(50);
   noTone(buzzer);
 }
@@ -394,14 +402,14 @@ void handleChangeControlTypeLight() {
 
 void handleLightOn() {
   lightData.isOn = true;
-  tone(buzzer, 2000);
+  tone(buzzer, 1000);
   delay(50);
   noTone(buzzer);
 }
 
 void handleLightOff() {
   lightData.isOn = false;
-  tone(buzzer, 2000);
+  tone(buzzer, 1000);
   delay(50);
   noTone(buzzer);
 }
@@ -411,7 +419,7 @@ void handleLightSlider() {
   lightData.lightLevel = actSliderValue.toInt();
 }
 
-void handleTemperatureSlider(){
+void handleTemperatureSlider() {
   String actSliderValue = server.arg("level");
   fanData.temperatureLevel = actSliderValue.toInt();
 }

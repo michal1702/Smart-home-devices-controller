@@ -17,11 +17,11 @@ DallasTemperature sensors(&oneWire);
 typedef struct structMessageFan {     
   bool controlAuto;
   bool isOn;
+  int temperatureLevel;
 } structMessageFan;
 
 structMessageFan fanData;
 
-float maxTemp = 27.0f;                 //max temperature after which a fan turns on
 float temp = 0.0f;
 
 void setup() {
@@ -73,7 +73,7 @@ void loop() {
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&fanData, incomingData, sizeof(fanData));
   if (fanData.controlAuto) {
-    if ( temp > maxTemp) {
+    if ( temp > fanData.temperatureLevel) {
       digitalWrite(RELAY, HIGH);
     }
     else {
